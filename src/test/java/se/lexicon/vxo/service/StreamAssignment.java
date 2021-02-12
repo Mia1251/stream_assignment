@@ -9,6 +9,7 @@ import javax.imageio.plugins.jpeg.JPEGImageReadParam;
 import java.sql.SQLOutput;
 import java.time.LocalDate;
 import java.time.Period;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -37,7 +38,7 @@ public class StreamAssignment {
         List<Integer> integers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
 
         //Write code here
-        integers.stream().forEach(System.out::println);
+        integers.forEach(System.out::println);
     }
 
     /**
@@ -214,7 +215,7 @@ public class StreamAssignment {
         double averageAge = 0;
 
         //Write code here
-        averageAge = people.stream().mapToInt(personToAge).reduce(0, (p1, p2) -> (p1 + p2))/10000d;
+        averageAge = people.stream().mapToInt(personToAge).reduce(0, Integer::sum)/10000d;
         System.out.println(averageAge);
 
 
@@ -232,6 +233,12 @@ public class StreamAssignment {
         String[] result = null;
 
         //Write code here
+        Predicate<Person> extractPalindromes = person -> new StringBuilder(person.getFirstName())
+                .reverse().toString().equalsIgnoreCase(person.getFirstName());
+        Function<Person, String> personToString = Person::getFirstName;
+        Comparator<String> sort = String::compareToIgnoreCase;
+        result = people.stream().filter(extractPalindromes).map(personToString).sorted(sort).distinct().toArray(String[]::new);
+        System.out.println(Arrays.toString(result));
 
 
         assertNotNull(result);
@@ -247,6 +254,8 @@ public class StreamAssignment {
         Map<String, List<Person>> personMap = null;
 
         //Write code here
+        personMap = people.stream().collect(Collectors.groupingBy(Person::getLastName));
+        System.out.println(personMap.size());
 
         assertNotNull(personMap);
         assertEquals(expectedSize, personMap.size());
@@ -260,7 +269,12 @@ public class StreamAssignment {
         LocalDate[] _2020_dates = null;
 
         //Write code here
+        LocalDate start = LocalDate.parse("2020-01-01");
+        LocalDate end = LocalDate.parse("2021-01-01");
 
+        _2020_dates = Stream.iterate(start, date -> date.plusDays(1))
+                .limit(ChronoUnit.DAYS.between(start, end)).toArray(LocalDate[]::new);
+        System.out.println(_2020_dates.length);
 
         assertNotNull(_2020_dates);
         assertEquals(366, _2020_dates.length);
